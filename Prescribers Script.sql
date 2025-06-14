@@ -69,7 +69,7 @@
 
 --3b. Which drug (generic_name) has the hightest total cost per day? **Bonus: Round your cost per day column to 2 decimal places. Google ROUND to see how this works.**
 
--- SELECT generic_name, ROUND(sum(total_drug_cost/total_day_supply),2) as drug_cost_perday
+-- SELECT generic_name, ROUND(SUM(total_drug_cost)/sum(total_day_supply),2) as drug_cost_perday
 -- FROM prescription
 -- LEFT JOIN drug
 -- USING (drug_name)
@@ -94,27 +94,35 @@
 
 --4b. Building off of the query you wrote for part a, determine whether more was spent (total_drug_cost) on opioids or on antibiotics.
 
--- SELECT SUM(total_drug_cost) as sum_of_drug_cost,
--- CASE 
--- 	WHEN opioid_drug_flag = 'Y' THEN 'opioid'
--- 	WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
--- 	ELSE 'neither'
--- END drug_type
--- FROM drug
--- LEFT JOIN prescription
--- USING (drug_name)
--- GROUP BY drug_type
+SELECT SUM(total_drug_cost) as sum_of_drug_cost,
+CASE 
+	WHEN opioid_drug_flag = 'Y' THEN 'opioid'
+	WHEN antibiotic_drug_flag = 'Y' THEN 'antibiotic'
+	ELSE 'neither'
+END drug_type
+FROM drug
+LEFT JOIN prescription
+USING (drug_name)
+GROUP BY drug_type
 
 --ANSWER More money was spent on Opioids.
 
 
 --5a. How many CBSAs are in Tennessee? **Warning:** The cbsa table contains information for all states, not just Tennessee.
 
--- SELECT * --COUNT(cbsa)
--- FROM cbsa 
--- WHERE cbsaname LIKE '%, TN%'
+SELECT DISTINCT(cbsa)
+FROM cbsa 
+WHERE cbsaname LIKE '%, TN%'
 
---ANSWER  There are 56 CBSA's in Tennessee.
+
+SELECT DISTINCT(cbsa)
+FROM cbsa
+INNER JOIN fips_county
+USING(fipscounty)
+WHERE state = 'TN'
+
+
+--ANSWER  There are 10 CBSA's in Tennessee.
 
 
 --5b. Which cbsa has the largest combined population? Which has the smallest? Report the CBSA name and total population.
@@ -126,7 +134,7 @@
 -- WHERE population IS NOT NULL
 -- GROUP BY cbsaname
 -- ORDER BY total_population DESC
--- LIMIT 1
+-- --LIMIT 1
 
 --ANSWER The CBSA with the largest population is "Nashville-Davidson--Murfreesboro--Franklin, TN" with a populatiuon of 1830410.
 
@@ -153,18 +161,15 @@
 -- WHERE CBSA IS NULL
 -- ORDER BY population DESC
 
---ANSWER The largest county not included in a CBSa is SEVIER with a population of 95523.
+ANSWER The largest county not included in a CBSa is SEVIER with a population of 95523.
 
 
 --6a. Find all rows in the prescription table where total_claims is at least 3000. Report the drug_name and the total_claim_count.
 
-SELECT drug_name, total_claim_count
+SELECT npi, drug_name, total_claim_count
 FROM prescription
 WHERE total_claim_count >=3000
-
-
-
-
+ORDER BY total_claim_count DESC;
 
 
 --6b. For each instance that you found in part a, add a column that indicates whether the drug is an opioid.
